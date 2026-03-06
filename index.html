@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ijesha Admin Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background: #f4f6f9;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 240px;
+            background: #111827;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            position: fixed;
+            display: none;
+        }
+
+        .sidebar.show {
+            display: block;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            padding: 12px;
+            margin: 10px 0;
+            background: #1f2937;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar ul li:hover {
+            background: #2563eb;
+        }
+
+        .sidebar ul li svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            flex-shrink: 0;
+        }
+
+        /* PAGE SECTIONS */
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* MAIN CONTENT */
+
+        .main {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
+            display: none;
+        }
+
+        .main.show {
+            display: block;
+        }
+
+        /* HEADER */
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header input {
+            padding: 8px;
+            width: 200px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        /* DASHBOARD CARDS */
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .card p {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        /* TABLE */
+
+        .table-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table th,
+        table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .occupied {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .vacant {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* CHART */
+
+        .chart {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* DARK MODE */
+
+        body.dark-mode {
+            background: #0f172a;
+        }
+
+        body.dark-mode .sidebar {
+            background: #020617;
+        }
+
+        body.dark-mode .sidebar ul li {
+            background: #1e293b;
+        }
+
+        body.dark-mode .sidebar ul li:hover,
+        body.dark-mode .sidebar ul li.active {
+            background: #1e40af;
+        }
+
+        body.dark-mode .card {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .card h3 {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .table-section {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode table th {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode table td {
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .chart {
+            background: #1e293b;
+        }
+
+        body.dark-mode .chart h2 {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .header input {
+            background: #334155;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .header input::placeholder {
+            color: #94a3b8;
+        }
+
+        body.dark-mode h1,
+        body.dark-mode h2 {
+            color: #e2e8f0;
+        }
+
+        /* LOGIN MODAL */
+
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .login-container.hidden {
+            display: none;
+        }
+
+        .login-modal {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-modal h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 28px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            color: #555;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .login-btn {
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .login-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .login-error {
+            color: #991b1b;
+            background: #fee2e2;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        body.dark-mode .login-modal {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .login-modal h2 {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .form-group label {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .form-group input {
+            background: #334155;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .form-group input::placeholder {
+            color: #94a3b8;
+        }
+
+        /* FILE UPLOAD STYLES */
+
+        .file-upload {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            margin-bottom: 20px;
+        }
+
+        .file-upload:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .file-upload.dragover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .file-upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            stroke: #6b7280;
+            fill: none;
+        }
+
+        .file-upload-text {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-subtext {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .image-preview {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 300px;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-preview .remove-image {
+            margin-top: 10px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        body.dark-mode .file-upload {
+            border-color: #475569;
+            background: #1e293b;
+        }
+
+        body.dark-mode .file-upload:hover,
+        body.dark-mode .file-upload.dragover {
+            border-color: #1e40af;
+            background: #1e293b;
+        }
+
+        body.dark-mode .file-upload-text {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .file-upload-subtext {
+            color: #64748b;
+        }
+
+        /* THEME TOGGLE */
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        body.dark-mode .theme-toggle {
+            color: #e2e8f0;
+        }
+
+        /* MOBILE */
+
+        @media(max-width:768px) {
+
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar h2 {
+                display: none;
+            }
+
+            .sidebar ul li {
+                font-size: 12px;
+                padding: 8px;
+            }
+
+            .main {
+                margin-left: 80px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGIN MODAL -->
+    <div class="login-container" id="login-container">
+        <div class="login-modal">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"
+                    style="margin: 0 auto; display: block;">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </div>
+            <h2>Login</h2>
+            <div class="login-error" id="login-error"></div>
+            <form class="login-form" id="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="login-btn" id="login-btn">Login</button>
+            </form>
+            <p style="text-align: center; margin-top: 20px; font-size: 12px; color: #999;">
+
+            </p>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                style="display: inline-block; margin-right: 8px; vertical-align: middle;">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg> Ijesha</h2>
+
+        <ul>
+            <li data-page="dashboard" class="active">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="9" x2="15" y2="9"></line>
+                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                    <line x1="9" y1="9" x2="9" y2="15"></line>
+                    <line x1="15" y1="9" x2="15" y2="15"></line>
+                </svg>
+                Dashboard
+            </li>
+            <li data-page="properties">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Properties
+            </li>
+            <li data-page="add-property">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12h14"></path>
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Add Property
+            </li>
+            <li data-page="tenants">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Tenants
+            </li>
+            <li data-page="payments">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                Payments
+            </li>
+            <li data-page="maintenance">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                    </path>
+                </svg>
+                Maintenance
+            </li>
+            <li data-page="reports">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14,2 14,8 20,8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10,9 9,9 8,9"></polyline>
+                </svg>
+                Reports
+            </li>
+            <li data-page="settings">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+                Settings
+            </li>
+        </ul>
+
+    </div>
+
+
+    <!-- MAIN -->
+
+    <div class="main">
+
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard-page" class="page active">
+
+            <!-- HEADER -->
+
+            <div class="header">
+
+                <h1>Admin Dashboard</h1>
+
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" placeholder="Search property...">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+                        <svg id="sun-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg id="moon-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+
+
+            <!-- CARDS -->
+
+            <div class="cards">
+
+                <div class="card">
+                    <h3>Total Properties</h3>
+                    <p id="total-properties">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>Total Tenants</h3>
+                    <p id="total-tenants">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>Occupied Houses</h3>
+                    <p id="occupied-houses">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>Vacant Houses</h3>
+                    <p id="vacant-houses">0</p>
+                </div>
+
+            </div>
+
+
+            <!-- PROPERTY TABLE -->
+
+            <div class="table-section">
+
+                <h2>Property List</h2>
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Rent</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="dashboard-properties-tbody">
+                        <!-- Data will be loaded from backend -->
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- CHART -->
+
+            <div class="chart">
+
+                <h2>Monthly Revenue</h2>
+
+                <canvas id="revenueChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- PROPERTIES PAGE -->
+        <div id="properties-page" class="page">
+            <div class="header">
+                <h1>Properties</h1>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" placeholder="Search properties...">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+                        <svg id="sun-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg id="moon-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="table-section">
+                <h2>All Properties</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Location</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="properties-tbody">
+                        <!-- Data will be loaded from backend -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ADD PROPERTY PAGE -->
+        <div id="add-property-page" class="page">
+            <div class="header">
+                <h1>Add New Property</h1>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" placeholder="Search properties...">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+                        <svg id="sun-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg id="moon-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <h2>Property Details</h2>
+                <form id="add-property-form" style="display: flex; flex-direction: column; gap: 20px;">
+
+                    <!-- Image Upload -->
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">Property Image</label>
+                        <div class="file-upload" id="file-upload">
+                            <svg class="file-upload-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M14.828 14.828a4 4 0 0 1-5.656 0M9 10h1.586a1 1 0 0 1 .707.293l.707.707A1 1 0 0 0 13.414 11H15m-3-3h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z">
+                                </path>
+                            </svg>
+                            <div class="file-upload-text">Click to upload property image</div>
+                            <div class="file-upload-subtext">PNG, JPG, JPEG up to 5MB</div>
+                            <input type="file" id="property-image" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="image-preview" id="image-preview">
+                            <img id="preview-image" src="" alt="Property Preview">
+                            <br>
+                            <button type="button" class="remove-image" id="remove-image">Remove Image</button>
+                        </div>
+                    </div>
+
+                    <!-- Property Details -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="property-name"
+                                style="display: block; margin-bottom: 5px; font-weight: bold;">Property Name</label>
+                            <input type="text" id="property-name" placeholder="e.g., Apartment A12" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="property-type"
+                                style="display: block; margin-bottom: 5px; font-weight: bold;">Property Type</label>
+                            <select id="property-type" required
+                                style="padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 100%;">
+                                <option value="">Select Type</option>
+                                <option value="apartment">Apartment</option>
+                                <option value="flat">Flat</option>
+                                <option value="duplex">Duplex</option>
+                                <option value="house">House</option>
+                                <option value="studio">Studio</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="property-location"
+                                style="display: block; margin-bottom: 5px; font-weight: bold;">Location</label>
+                            <input type="text" id="property-location" placeholder="e.g., Lagos, Nigeria" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="property-price"
+                                style="display: block; margin-bottom: 5px; font-weight: bold;">Monthly Rent ($)</label>
+                            <input type="number" id="property-price" placeholder="e.g., 400" min="0" required>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="property-description"
+                            style="display: block; margin-bottom: 5px; font-weight: bold;">Description</label>
+                        <textarea id="property-description"
+                            placeholder="Describe the property features, amenities, and any additional information..."
+                            rows="6"
+                            style="padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 100%; resize: vertical; font-family: inherit;"
+                            required></textarea>
+                    </div>
+
+                    <!-- Additional Features -->
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">Additional
+                            Features</label>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="feature-parking"> Parking
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="feature-gym"> Gym
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="feature-pool"> Swimming Pool
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="feature-security"> 24/7 Security
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="feature-balcony"> Balcony
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="feature-garden"> Garden
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button type="submit" id="submit-property"
+                            style="background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1;">Add
+                            Property</button>
+                        <button type="button" id="clear-form"
+                            style="background: #6b7280; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer;">Clear
+                            Form</button>
+                    </div>
+
+                </form>
+
+                <!-- Success Message -->
+                <div id="success-message"
+                    style="display: none; margin-top: 20px; padding: 15px; background: #d1fae5; color: #065f46; border-radius: 6px; text-align: center;">
+                    Property added successfully!
+                </div>
+            </div>
+        </div>
+
+        <!-- TENANTS PAGE -->
+        <div id="tenants-page" class="page">
+            <div class="header">
+                <h1>Tenants</h1>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" placeholder="Search tenants...">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+                        <svg id="sun-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg id="moon-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="table-section">
+                <h2>Tenant List</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Property</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tenants-tbody">
+                        <!-- Data will be loaded from backend -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PAYMENTS PAGE -->
+        <div id="payments-page" class="page">
+            <div class="header">
+                <h1>Payments</h1>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" placeholder="Search payments...">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+                        <svg id="sun-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg id="moon-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="table-section">
+                <h2>Payment Records</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tenant</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payments-tbody">
+                        <!-- Data will be loaded from backend -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MAINTENANCE PAGE -->
+        <div id="maintenance-page" class="page">
+            <div class="header">
+                <h1>Maintenance</h1>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" placeholder="Search maintenance...">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+                        <svg id="sun-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg id="moon-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="table-section">
+                <h2>Maintenance Requests</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Issue</th>
+                            <th>Date Reported</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="maintenance-tbody">
+                        <!-- Data will be loaded from backend -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPORTS PAGE -->
+        <div id="reports-page" class="page">
+            <div class="header">
+                <h1>Reports</h1>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" placeholder="Search reports...">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+                        <svg id="sun-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg id="moon-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" style="display: none;">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="table-section">
+                <h2>Generated Reports</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Report Name</th>
+                            <th>Type</th>
+                            <th>Date Generated</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reports-tbody">
+                        <!-- Data will be loaded from backend -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SETTINGS PAGE -->
+        <div id="settings-page" class="page">
+            <div class="header">
+                <h1>Settings</h1>
+                <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+                    <svg id="sun-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg id="moon-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="display: none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="table-section">
+                <h2>Application Settings</h2>
+                <form style="display: flex; flex-direction: column; gap: 15px;">
+                    <div>
+                        <label for="company-name" style="display: block; margin-bottom: 5px; font-weight: bold;">Company
+                            Name:</label>
+                        <input type="text" id="company-name" placeholder="Enter company name"
+                            style="padding: 8px; border: 1px solid #ddd; border-radius: 6px; width: 100%; max-width: 400px;">
+                    </div>
+                    <div>
+                        <label for="email" style="display: block; margin-bottom: 5px; font-weight: bold;">Email:</label>
+                        <input type="email" id="email" placeholder="Enter email"
+                            style="padding: 8px; border: 1px solid #ddd; border-radius: 6px; width: 100%; max-width: 400px;">
+                    </div>
+                    <div>
+                        <label for="phone" style="display: block; margin-bottom: 5px; font-weight: bold;">Phone:</label>
+                        <input type="tel" id="phone" placeholder="Enter phone number"
+                            style="padding: 8px; border: 1px solid #ddd; border-radius: 6px; width: 100%; max-width: 400px;">
+                    </div>
+                    <button type="submit"
+                        style="background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; max-width: 400px;">Save
+                        Settings</button>
+                </form>
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <h3 style="margin-bottom: 15px;">Account</h3>
+                    <button id="logout-btn"
+                        style="background: #dc2626; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Logout</button>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <!-- CHART SCRIPT -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+
+        // Page Navigation
+        const menuItems = document.querySelectorAll('.sidebar ul li');
+        const pages = document.querySelectorAll('.page');
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', function () {
+                const pageName = this.getAttribute('data-page');
+
+                // Remove active class from all menu items and pages
+                menuItems.forEach(li => li.classList.remove('active'));
+                pages.forEach(page => page.classList.remove('active'));
+
+                // Add active class to clicked menu item and corresponding page
+                this.classList.add('active');
+                document.getElementById(pageName + '-page').classList.add('active');
+
+                // Reinitialize chart if on dashboard page
+                if (pageName === 'dashboard') {
+                    initializeChart();
+                }
+            });
+        });
+
+        // Initialize Revenue Chart
+        function initializeChart() {
+            const chartCanvas = document.getElementById('revenueChart');
+            if (chartCanvas) {
+                const ctx = chartCanvas.getContext('2d');
+                // Check if chart already exists and destroy it
+                if (window.revenueChart instanceof Chart) {
+                    window.revenueChart.destroy();
+                }
+                window.revenueChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: "Revenue",
+                            data: [],
+                        }]
+                    }
+                });
+            }
+        }
+
+        // Initialize chart on page load
+        window.addEventListener('load', initializeChart);
+
+        // LOGIN AUTHENTICATION
+        const loginForm = document.getElementById('login-form');
+        const loginContainer = document.getElementById('login-container');
+        const loginError = document.getElementById('login-error');
+        const sidebar = document.querySelector('.sidebar');
+        const main = document.querySelector('.main');
+
+        // Check if user is already logged in
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        if (isLoggedIn) {
+            loginContainer.classList.add('hidden');
+            sidebar.classList.add('show');
+            main.classList.add('show');
+        }
+
+        // Handle login form submission
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Demo credentials validation
+            const validEmail = 'admin@housing.com';
+            const validPassword = 'password123';
+
+            if (email === validEmail && password === validPassword) {
+                // Login successful
+                localStorage.setItem('isLoggedIn', 'true');
+                loginError.classList.remove('show');
+                loginContainer.classList.add('hidden');
+                sidebar.classList.add('show');
+                main.classList.add('show');
+
+                // Clear form
+                loginForm.reset();
+            } else {
+                // Login failed
+                loginError.textContent = 'Invalid email or password. Try admin@housing.com / password123';
+                loginError.classList.add('show');
+            }
+        });
+
+        // Handle logout
+        const logoutBtn = document.getElementById('logout-btn');
+        logoutBtn.addEventListener('click', function () {
+            localStorage.setItem('isLoggedIn', 'false');
+            loginContainer.classList.remove('hidden');
+            sidebar.classList.remove('show');
+            main.classList.remove('show');
+            loginForm.reset();
+            loginError.classList.remove('show');
+        });
+
+        // Dark Mode Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+
+        // Check for saved theme preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+        }
+
+        // Toggle dark mode
+        themeToggle.addEventListener('click', function () {
+            document.body.classList.toggle('dark-mode');
+
+            // Update icons
+            if (document.body.classList.contains('dark-mode')) {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // ADD PROPERTY FUNCTIONALITY
+        const fileUpload = document.getElementById('file-upload');
+        const propertyImage = document.getElementById('property-image');
+        const imagePreview = document.getElementById('image-preview');
+        const previewImage = document.getElementById('preview-image');
+        const removeImage = document.getElementById('remove-image');
+        const addPropertyForm = document.getElementById('add-property-form');
+        const successMessage = document.getElementById('success-message');
+        const clearFormBtn = document.getElementById('clear-form');
+
+        // File upload click handler
+        fileUpload.addEventListener('click', function () {
+            propertyImage.click();
+        });
+
+        // File input change handler
+        propertyImage.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select a valid image file.');
+                    return;
+                }
+
+                // Validate file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB.');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImage.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    fileUpload.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Drag and drop functionality
+        fileUpload.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+        });
+
+        fileUpload.addEventListener('dragleave', function (e) {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+        });
+
+        fileUpload.addEventListener('drop', function (e) {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                propertyImage.files = files;
+                propertyImage.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Remove image handler
+        removeImage.addEventListener('click', function () {
+            propertyImage.value = '';
+            imagePreview.style.display = 'none';
+            fileUpload.style.display = 'block';
+        });
+
+        // Form submission handler
+        addPropertyForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Get form data
+            const formData = {
+                name: document.getElementById('property-name').value,
+                type: document.getElementById('property-type').value,
+                location: document.getElementById('property-location').value,
+                price: document.getElementById('property-price').value,
+                description: document.getElementById('property-description').value,
+                features: {
+                    parking: document.getElementById('feature-parking').checked,
+                    gym: document.getElementById('feature-gym').checked,
+                    pool: document.getElementById('feature-pool').checked,
+                    security: document.getElementById('feature-security').checked,
+                    balcony: document.getElementById('feature-balcony').checked,
+                    garden: document.getElementById('feature-garden').checked
+                },
+                image: propertyImage.files[0] ? propertyImage.files[0].name : null
+            };
+
+            // Here you would typically send the data to your backend
+            console.log('Property data:', formData);
+
+            // Show success message
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+
+            // Clear form
+            clearForm();
+        });
+
+        // Clear form function
+        function clearForm() {
+            addPropertyForm.reset();
+            propertyImage.value = '';
+            imagePreview.style.display = 'none';
+            fileUpload.style.display = 'block';
+        }
+
+        // Clear form button handler
+        clearFormBtn.addEventListener('click', clearForm);
+
+    </script>
+
+</body>
+
+</html>
